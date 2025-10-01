@@ -1,0 +1,63 @@
+.historial-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5; /* gris claro */
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.historial-box {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.historial-title {
+  text-align: center;
+  color: #28A745; /* verde colibrí */
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.historial-empty {
+  text-align: center;
+  color: #777;
+}
+
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historial-item {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.historial-item p {
+  margin: 0.25rem 0;
+}
+
+/* Estados */
+.estado {
+  margin-left: 0.5rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.estado.pendiente { background: #FFC107; color: #343A40; }
+.estado.en\ curso { background: #007BFF; color: white; }
+.estado.finalizado { background: #28A745; color: white; }
+.estado.cancelado { background: #DC3545; color: white; }

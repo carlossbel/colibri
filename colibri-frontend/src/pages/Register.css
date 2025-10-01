@@ -1,0 +1,88 @@
+.register-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f5f5; /* gris claro */
+  font-family: Arial, sans-serif;
+}
+
+.register-box {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.register-logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 0.5rem;
+}
+
+.register-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #28A745; /* verde colibrí */
+  margin: 0;
+}
+
+.register-subtitle {
+  font-size: 1rem;
+  color: #343A40; /* gris oscuro */
+  margin: 0.5rem 0 1.5rem;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.register-input,
+.register-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #28A745;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.register-input:focus,
+.register-select:focus {
+  outline: none;
+  border-color: #00BFA6;
+  box-shadow: 0 0 4px #00BFA6;
+}
+
+.register-button {
+  background-color: #28A745;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.register-button:hover {
+  background-color: #00BFA6;
+}
+
+.register-footer {
+  margin-top: 1.5rem;
+  color: #343A40;
+}
+
+.register-link {
+  background: none;
+  border: none;
+  color: #00BFA6;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+}

@@ -1,0 +1,131 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5; /* gris claro */
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.home-box {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.home-title {
+  text-align: center;
+  color: #28A745; /* verde colibrí */
+  margin-bottom: 1.5rem;
+}
+
+.home-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.home-input, .home-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #28A745;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.home-input:focus, .home-select:focus {
+  outline: none;
+  border-color: #00BFA6;
+  box-shadow: 0 0 4px #00BFA6;
+}
+
+.home-button {
+  background: #28A745;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.home-button:hover {
+  background: #00BFA6;
+}
+
+.viaje-actual {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.viaje-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.estado {
+  margin-left: 0.5rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.estado.pendiente { background: #FFC107; color: #343A40; }
+.estado.en\ curso { background: #007BFF; color: white; }
+.estado.finalizado { background: #28A745; color: white; }
+.estado.cancelado { background: #DC3545; color: white; }
+
+.botones-estado {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-estado {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-estado.verde { background: #28A745; }
+.btn-estado.verde:hover { background: #00BFA6; }
+.btn-estado.rojo { background: #DC3545; }
+.btn-estado.rojo:hover { background: #b52a37; }
+
+.calificacion {
+  margin-top: 1rem;
+}
+
+.estrellas {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.estrella {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.estrella.activo {
+  background: #28A745;
+  color: white;
+  border-color: #28A745;
+}
+
+.mensaje-ok {
+  margin-top: 0.5rem;
+  color: #28A745;
+  font-weight: bold;
+}
