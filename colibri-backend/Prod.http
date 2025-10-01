@@ -1,0 +1,27 @@
+### 🌐 Test Backend Colibrí
+@baseUrl = https://colibri-backend-od5b.onrender.com
+
+### 👤 Registro de usuario
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "nombre": "Rafa",
+  "email": "test@colibri.com",
+  "telefono": "123456789",
+  "password": "1234",
+  "rol": "viajero"
+}
+
+### 🔑 Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@colibri.com",
+  "password": "1234"
+}
+
+### 🔒 Ruta protegida de prueba (ejemplo con token)
+GET {{baseUrl}}/trips
+Authorization: Bearer {{token}}

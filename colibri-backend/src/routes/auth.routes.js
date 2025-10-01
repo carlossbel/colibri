@@ -49,5 +49,23 @@ router.post("/login", async (req, res) => {
     res.status(400).json({ message: "Datos inválidos", error: e?.message });
   }
 });
+router.get("/users", async (req, res) => {
+  try {
+    const users = await prisma.usuario.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        email: true,
+        telefono: true,
+        rol: true,
+        createdAt: true
+      }
+    });
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener usuarios" });
+  }
+});
 
 export default router;

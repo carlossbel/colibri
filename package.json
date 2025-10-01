@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "axios": "^1.12.2"
+  },
+  "scripts": {
+    "deploy:prod": "node deploy-prod.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
+}
