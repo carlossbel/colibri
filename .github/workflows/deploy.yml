@@ -1,4 +1,4 @@
-﻿name: Deploy to VPS
+name: Deploy to VPS
 
 on:
   push:
@@ -13,30 +13,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: Deploy to VPS
+    - name: Deploy Frontend to VPS
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          echo "🚀 Desplegando colibri..."
+          echo "🚀 Desplegando Colibri Frontend..."
           
-          # Crear directorio si no existe
-          mkdir -p /home/deployer/colibri
           cd /home/deployer/colibri
+          git pull origin main
           
-          # Si es primera vez, clonar repo
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/carlossbel/colibri.git .
-          else
-            # Si ya existe, hacer pull
-            git fetch origin
-            git reset --hard origin/main
-            git pull origin main
-          fi
+          echo "🎨 Compilando Frontend..."
+          cd colibri-frontend
           
-          echo "✅ Código actualizado"
-          echo "📦 Rama: $(git branch --show-current)"
-          echo "🔖 Commit: $(git log -1 --pretty=format:'%h - %s')"
-          echo "⏰ Fecha: $(date)"
+          # Crear .env si no existe
+          echo "VITE_API_URL=https://tu-backend.vercel.app" > .env
+          
+          npm install
+          npm run build
+          
+          echo "🔄 Reiniciando Nginx..."
+          sudo systemctl reload nginx
+          
+          echo "✅ Frontend desplegado exitosamente: $(date)"
+          echo "📦 Archivos en: /home/deployer/colibri/colibri-frontend/dist"
