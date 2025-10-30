@@ -29,7 +29,7 @@ jobs:
           cd colibri-frontend
           
           # Crear .env si no existe
-          echo "VITE_API_URL=https://tu-backend.vercel.app" > .env
+          echo "VITE_API_URL=https://dashboard.render.com/d/dpg-d3ec4s15pdvs7390g5s0-a" > .env
           
           npm install
           npm run build
