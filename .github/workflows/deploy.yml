@@ -1,0 +1,42 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "🚀 Desplegando colibri..."
+          
+          # Crear directorio si no existe
+          mkdir -p /home/deployer/colibri
+          cd /home/deployer/colibri
+          
+          # Si es primera vez, clonar repo
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/carlossbel/colibri.git .
+          else
+            # Si ya existe, hacer pull
+            git fetch origin
+            git reset --hard origin/main
+            git pull origin main
+          fi
+          
+          echo "✅ Código actualizado"
+          echo "📦 Rama: $(git branch --show-current)"
+          echo "🔖 Commit: $(git log -1 --pretty=format:'%h - %s')"
+          echo "⏰ Fecha: $(date)"
