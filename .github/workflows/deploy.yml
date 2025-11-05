@@ -75,19 +75,25 @@ jobs:
         script: |
           cd /home/deployer/colibri
           
-          # Login a GitHub Container Registry
+          echo "🔐 Login a GitHub Container Registry..."
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          # Pull nueva imagen
+          echo "📥 Descargando nueva imagen..."
           docker-compose pull
           
-          # Detener y remover contenedores antiguos
+          echo "🛑 Deteniendo contenedores antiguos..."
           docker-compose down
           
-          # Iniciar con nueva imagen
+          echo "🚀 Iniciando nueva versión..."
           docker-compose up -d
           
-          echo "✅ Código actualizado"
-          echo "📦 Rama: $(git branch --show-current)"
-          echo "🔖 Commit: $(git log -1 --pretty=format:'%h - %s')"
+          echo "🧹 Limpiando imágenes antiguas..."
+          docker image prune -af
+          
+          echo "🔄 Reiniciando Nginx..."
+          sudo systemctl reload nginx
+          
+          echo "✅ Despliegue completado!"
+          echo "📦 Contenedores activos:"
+          docker ps
           echo "⏰ Fecha: $(date)"
