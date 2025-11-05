@@ -87,8 +87,7 @@ jobs:
           # Iniciar con nueva imagen
           docker-compose up -d
           
-          # Limpiar imágenes antiguas
-          docker image prune -af
-          
-          echo "✅ Despliegue completado: $(date)"
-          docker ps
+          echo "✅ Código actualizado"
+          echo "📦 Rama: $(git branch --show-current)"
+          echo "🔖 Commit: $(git log -1 --pretty=format:'%h - %s')"
+          echo "⏰ Fecha: $(date)"
