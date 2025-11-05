@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: ghcr.io/carlossbel/colibri:latest
+    container_name: colibri-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
