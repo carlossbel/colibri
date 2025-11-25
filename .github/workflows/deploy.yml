@@ -1,4 +1,4 @@
-﻿name: CI/CD Pipeline - Frontend
+﻿name: Blue-Green CI/CD
 
 on:
   push:
@@ -23,77 +23,93 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    - name: Log in to GitHub Container Registry
+    - name: Log in to GHCR
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=raw,value=latest
-          type=sha,prefix={{branch}}-
-    
-    - name: Build and push Docker image
+    - name: Build and push
       uses: docker/build-push-action@v5
       with:
         context: ./colibri-frontend
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
         cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
-  deploy:
+  blue-green-deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Copy docker-compose to VPS
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "docker-compose.yml"
-        target: "/home/deployer/colibri"
-    
-    - name: Deploy to VPS
+    - name: Deploy with Blue-Green
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /home/deployer/colibri
+          cd ~/colibri
           
-          echo "🔐 Login a GitHub Container Registry..."
+          export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          export GITHUB_USER="${{ github.actor }}"
+          
+          echo "🔍 Detectando ambiente activo..."
+          ACTIVE_PORT=$(grep -oP 'server localhost:\K\d+' /etc/nginx/sites-available/colibri-blue-green | head -1)
+          
+          if [ "$ACTIVE_PORT" == "8001" ]; then
+            TARGET="green"
+            TARGET_PORT="8002"
+            TARGET_COMPOSE="docker-compose.green.yml"
+            echo "📍 Blue está activo, desplegando en Green"
+          else
+            TARGET="blue"
+            TARGET_PORT="8001"
+            TARGET_COMPOSE="docker-compose.blue.yml"
+            echo "📍 Green está activo, desplegando en Blue"
+          fi
+          
+          echo "🎯 Desplegando en $TARGET (puerto $TARGET_PORT)"
+          
+          # Login a GHCR
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          echo "📥 Descargando nueva imagen..."
-          docker-compose pull
+          # Pull nueva imagen
+          docker-compose -f $TARGET_COMPOSE pull
           
-          echo "🛑 Deteniendo contenedores antiguos..."
-          docker-compose down
+          # Deploy en ambiente inactivo
+          docker-compose -f $TARGET_COMPOSE down
+          docker-compose -f $TARGET_COMPOSE up -d
           
-          echo "🚀 Iniciando nueva versión..."
-          docker-compose up -d
+          # Esperar que esté listo
+          echo "⏳ Esperando que $TARGET esté listo..."
+          sleep 10
           
-          echo "🧹 Limpiando imágenes antiguas..."
-          docker image prune -af
+          # Health check
+          echo "🏥 Verificando salud de $TARGET..."
+          for i in {1..15}; do
+            if curl -f http://localhost:$TARGET_PORT/ &> /dev/null; then
+              echo "✅ $TARGET está funcionando"
+              break
+            fi
+            if [ $i -eq 15 ]; then
+              echo "❌ $TARGET no respondió"
+              exit 1
+            fi
+            echo "Intento $i/15..."
+            sleep 2
+          done
           
-          echo "🔄 Reiniciando Nginx..."
-          sudo systemctl reload nginx
+          # Switch automático
+          echo "🔄 Cambiando tráfico a $TARGET..."
+          ~/colibri/scripts/switch-deployment.sh
           
-          echo "✅ Despliegue completado!"
-          echo "📦 Contenedores activos:"
-          docker ps
-          echo "⏰ Fecha: $(date)"
+          # Verificar
+          echo "✅ Deployment completado!"
+          echo "📊 Estado actual:"
+          curl http://35.208.59.77/deployment-status
+          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
