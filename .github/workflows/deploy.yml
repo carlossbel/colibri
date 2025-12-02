@@ -24,7 +24,7 @@ jobs:
     
     - name: Install backend dependencies
       working-directory: ./colibri-backend
-      run: npm ci
+      run: npm install
     
     - name: Run integration tests
       working-directory: ./colibri-backend
