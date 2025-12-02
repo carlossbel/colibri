@@ -10,7 +10,31 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install backend dependencies
+      working-directory: ./colibri-backend
+      run: npm ci
+    
+    - name: Run integration tests
+      working-directory: ./colibri-backend
+      run: npm test
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        NODE_ENV: test
+  
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,22 +82,22 @@ jobs:
           export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           export GITHUB_USER="${{ github.actor }}"
           
-          echo "🔍 Detectando ambiente activo..."
+          echo "[INFO] Detectando ambiente activo..."
           ACTIVE_PORT=$(grep -oP 'server localhost:\K\d+' /etc/nginx/sites-available/colibri-blue-green | head -1)
           
           if [ "$ACTIVE_PORT" == "8001" ]; then
             TARGET="green"
             TARGET_PORT="8002"
             TARGET_COMPOSE="docker-compose.green.yml"
-            echo "📍 Blue está activo, desplegando en Green"
+            echo "[INFO] Blue esta activo, desplegando en Green"
           else
             TARGET="blue"
             TARGET_PORT="8001"
             TARGET_COMPOSE="docker-compose.blue.yml"
-            echo "📍 Green está activo, desplegando en Blue"
+            echo "[INFO] Green esta activo, desplegando en Blue"
           fi
           
-          echo "🎯 Desplegando en $TARGET (puerto $TARGET_PORT)"
+          echo "[DEPLOY] Desplegando en $TARGET (puerto $TARGET_PORT)"
           
           # Login a GHCR
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -85,31 +109,31 @@ jobs:
           docker-compose -f $TARGET_COMPOSE down
           docker-compose -f $TARGET_COMPOSE up -d
           
-          # Esperar que esté listo
-          echo "⏳ Esperando que $TARGET esté listo..."
+          # Esperar que este listo
+          echo "[WAIT] Esperando que $TARGET este listo..."
           sleep 10
           
           # Health check
-          echo "🏥 Verificando salud de $TARGET..."
+          echo "[HEALTH] Verificando salud de $TARGET..."
           for i in {1..15}; do
             if curl -f http://localhost:$TARGET_PORT/ &> /dev/null; then
-              echo "✅ $TARGET está funcionando"
+              echo "[SUCCESS] $TARGET esta funcionando"
               break
             fi
             if [ $i -eq 15 ]; then
-              echo "❌ $TARGET no respondió"
+              echo "[ERROR] $TARGET no respondio"
               exit 1
             fi
-            echo "Intento $i/15..."
+            echo "[HEALTH] Intento $i/15..."
             sleep 2
           done
           
-          # Switch automático
-          echo "🔄 Cambiando tráfico a $TARGET..."
+          # Switch automatico
+          echo "[SWITCH] Cambiando trafico a $TARGET..."
           ~/colibri/scripts/switch-deployment.sh
           
           # Verificar
-          echo "✅ Deployment completado!"
-          echo "📊 Estado actual:"
+          echo "[SUCCESS] Deployment completado"
+          echo "[STATUS] Estado actual:"
           curl http://35.208.59.77/deployment-status
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
