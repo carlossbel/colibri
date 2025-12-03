@@ -49,7 +49,7 @@ export default function Login() {
             alt="Colibrí logo"
             className="login-logo"
           />
-          <h1 className="login-title">Colibrí</h1>
+          <h1 className="login-title">Colibríiiii</h1>
           <h2 className="login-subtitle">Inicia sesión</h2>
         </div>
 
